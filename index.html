@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="my">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>လျှပ်စစ်မီးလာချိန် ကြိုတင်သိရှိရန်</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-color: #1e1e1e;
+            --text-color: #e0e0e0;
+            --accent-color: #bb86fc;
+            --secondary-color: #03dac6;
+            --danger-color: #cf6679;
+            --success-color: #4caf50;
+            --info-color: #2196f3;
+        }
+
+        body {
+            font-family: 'Noto Sans Myanmar', 'Pyidaungsu', 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            margin-bottom: 5px;
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            color: var(--secondary-color);
+            opacity: 0.8;
+            font-size: 1rem;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-card {
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-indicator {
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .power-on {
+            background-color: var(--success-color);
+            color: #000;
+        }
+
+        .power-off {
+            background-color: var(--danger-color);
+            color: #000;
+        }
+
+        .timer {
+            font-size: 2.5rem;
+            font-family: monospace;
+            margin: 20px 0;
+            color: var(--secondary-color);
+        }
+
+        .next-session {
+            margin-top: 15px;
+            font-size: 1.1rem;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .schedule-table th,
+        .schedule-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        .schedule-table th {
+            background-color: #2a2a2a;
+            color: var(--accent-color);
+        }
+
+        .schedule-table tr:hover {
+            background-color: #2a2a2a;
+        }
+
+        .current-time {
+            background-color: var(--accent-color);
+            color: #000;
+            font-weight: bold;
+        }
+
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 10px 15px;
+            background-color: var(--card-color);
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            transition: all 0.3s ease;
+            min-width: 120px;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            background-color: var(--accent-color);
+            color: #000;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .info-text {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        .group-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .group-btn {
+            padding: 10px 15px;
+            background-color: var(--card-color);
+            border: 2px solid var(--accent-color);
+            color: var(--text-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .group-btn.active {
+            background-color: var(--accent-color);
+            color: #000;
+        }
+
+        .news-card {
+            border-left: 4px solid var(--info-color);
+        }
+
+        .news-title {
+            color: var(--info-color);
+            margin-top: 0;
+            font-size: 1.1rem;
+        }
+
+        .news-date {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 10px;
+        }
+
+        .news-content {
+            line-height: 1.5;
+        }
+
+        @media (max-width: 600px) {
+            .timer {
+                font-size: 2rem;
+            }
+
+            .schedule-table th,
+            .schedule-table td {
+                padding: 8px;
+                font-size: 0.9rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .group-btn {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+
+            .current-time-display {
+                text-align: center;
+                margin-bottom: 20px;
+                font-size: 1.2rem;
+                color: var(--secondary-color);
+            }
+
+            .current-time-display span {
+                font-weight: bold;
+                color: var(--accent-color);
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+
+        <div class="current-time-display">
+            မြန်မာစံတော်ချိန်: <span id="myanmar_time"></span>
+        </div>
+
+        <header>
+            <h1>လျှပ်စစ်မီးလာချိန် ကြိုတင်သိရှိရန်</h1>
+            <p class="subtitle">မီးလာမည့်အချိန်ကို ကြိုတင်သိရှိပါ</p>
+        </header>
+
+        <div class="group-selector">
+            <button class="group-btn" onclick="selectGroup('A')">အုပ်စု A</button>
+            <button class="group-btn" onclick="selectGroup('B')">အုပ်စု B</button>
+            <button class="group-btn" onclick="selectGroup('C')">အုပ်စု C</button>
+            <button class="group-btn" onclick="selectGroup('D')">အုပ်စု D</button>
+            <button class="group-btn" onclick="selectGroup('E')">အုပ်စု E</button>
+            <button class="group-btn" onclick="selectGroup('F')">အုပ်စု F</button>
+        </div>
+
+        <div class="tab-container">
+            <button class="tab active" onclick="openTab(event, 'current')">လက်ရှိအခြေအနေ</button>
+            <button class="tab" onclick="openTab(event, 'schedule')">အချိန်ဇယား</button>
+            <button class="tab" onclick="openTab(event, 'news')">နောက်ဆုံးသတင်း</button>
+        </div>
+
+        <div id="current" class="tab-content active">
+            <div class="card status-card">
+                <div id="selected-group" style="margin-bottom: 15px; font-weight: bold; font-size: 1.2rem;">
+                    အုပ်စုရွေးချယ်ပါ</div>
+                <div id="status-indicator" class="status-indicator" style="display: none;"></div>
+                <div id="status-message"></div>
+
+                <div id="countdown-container" style="display: none;">
+                    <div class="info-text">နောက်လာမည့် မီးလာချိန်အထိ ကြာမြင့်ချိန်</div>
+                    <div id="timer" class="timer">00:00:00</div>
+                </div>
+
+                <div id="next-session" class="next-session">
+                    နောက်လာမည့်အချိန်: <span id="next-session-time">အုပ်စုရွေးချယ်ပါ</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>ဒီနေ့၏ မီးလာမည့်အချိန်</h2>
+                <div id="today-schedule">အုပ်စုရွေးချယ်ပါ</div>
+                <div class="info-text">မှတ်ချက်: အုပ်စုတစ်ခုစီအတွက် မီးလာချိန် ၄ နာရီခြားပြီး လှည့်ကျပေးပါသည်</div>
+            </div>
+        </div>
+
+        <div id="schedule" class="tab-content">
+            <div class="card">
+                <h2>အချိန်ဇယား (၇ ရက်စာ)</h2>
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th>ရက်စွဲ</th>
+                            <th>အချိန်</th>
+                            <th>အခြေအနေ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schedule-body">
+                        <!-- Will be populated by JavaScript -->
+                    </tbody>
+                </table>
+                <div class="info-text">မှတ်ချက်: အုပ်စုများကို ၄ နာရီခြားပြီး လှည့်ကျပေးပါသည်</div>
+            </div>
+        </div>
+
+        <div id="news" class="tab-content">
+            <div class="card news-card">
+                <h3 class="news-title">နောက်ဆုံးရ လျှပ်စစ်မီးအခြေအနေ</h3>
+                <div class="news-date">၂၉ မတ် ၂၀၂၅</div>
+                <div class="news-content">
+                    <p>ယခုအခါ မြို့နယ်အချို့တွင် ငလျင်ဒဏ်ကြောင့် လျှပ်စစ်ဓာတ်အား ပြတ်တောက်မှုများ ရှိနေပါသည်။
+                        ပြန်လည်ပြုပြင်ရေး လုပ်ငန်းများကို အရှိန်အဟုန်ဖြင့် ဆောင်ရွက်လျက်ရှိပါသည်။</p>
+                    <p>လျှပ်စစ်မီးလာချိန်များကို အထက်ပါအုပ်စုများအတိုင်း လှည့်ကျပေးသွားမည်ဖြစ်ပါသည်။</p>
+                </div>
+            </div>
+
+            <div class="card news-card">
+                <h3 class="news-title">အုပ်စုများ ပြောင်းလဲမှု</h3>
+                <div class="news-date">၂၈ မတ် ၂၀၂၅</div>
+                <div class="news-content">
+                    <p>၂၉ မတ်မှစ၍ အုပ်စုများ၏ မီးလာချိန်များကို အောက်ပါအတိုင်း ပြောင်းလဲသတ်မှတ်ပါသည်။</p>
+                    <ul>
+                        <li>အုပ်စု A - ၅:၀၀ မှ ၉:၀၀</li>
+                        <li>အုပ်စု B - ၉:၀၀ မှ ၁၃:၀၀</li>
+                        <li>အုပ်စု C - ၁၃:၀၀ မှ ၁၇:၀၀</li>
+                        <li>အုပ်စု D - ၁၇:၀၀ မှ ၂၁:၀၀</li>
+                        <li>အုပ်စု E - ၂၁:၀၀ မှ ၁:၀၀ (နောက်နေ့)</li>
+                        <li>အုပ်စု F - ၁:၀၀ မှ ၅:၀၀ (နောက်နေ့)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        function updateMyanmarTime() {
+            const now = getMyanmarTime();
+            const options = {
+                timeZone: 'Asia/Yangon',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+
+            // Format with Burmese numerals
+            const timeStr = now.toLocaleTimeString('my-MM', options)
+                .replace(/0/g, '၀')
+                .replace(/1/g, '၁')
+                .replace(/2/g, '၂')
+                .replace(/3/g, '၃')
+                .replace(/4/g, '၄')
+                .replace(/5/g, '၅')
+                .replace(/6/g, '၆')
+                .replace(/7/g, '၇')
+                .replace(/8/g, '၈')
+                .replace(/9/g, '၉');
+
+            document.getElementById('myanmar_time').textContent = timeStr;
+        }
+
+        // Configuration - Group schedules
+        const groupSchedules = {
+            'A': { startTime: "5:00", endTime: "9:00" },
+            'B': { startTime: "9:00", endTime: "13:00" },
+            'C': { startTime: "13:00", endTime: "17:00" },
+            'D': { startTime: "17:00", endTime: "21:00" },
+            'E': { startTime: "21:00", endTime: "1:00", nextDay: true },
+            'F': { startTime: "1:00", endTime: "5:00", nextDay: true }
+        };
+
+        // DOM Elements
+        const statusIndicator = document.getElementById('status-indicator');
+        const statusMessage = document.getElementById('status-message');
+        const timerElement = document.getElementById('timer');
+        const nextSessionTime = document.getElementById('next-session-time');
+        const todayScheduleElement = document.getElementById('today-schedule');
+        const scheduleBody = document.getElementById('schedule-body');
+        const countdownContainer = document.getElementById('countdown-container');
+        const selectedGroupElement = document.getElementById('selected-group');
+        const groupButtons = document.querySelectorAll('.group-btn');
+        const tabs = document.querySelectorAll('.tab');
+
+        // Global variables
+        let currentGroup = null;
+        let powerOn = false;
+        let nextPowerTime = null;
+
+        // Get current Myanmar time (UTC+6:30)
+        function getMyanmarTime() {
+            const now = new Date();
+            const utcTime = now.getTime() + now.getTimezoneOffset() * 60000; // Convert to UTC
+            const myanmarTime = new Date(utcTime + 6.5 * 3600000); // Add 6.5 hours
+
+            return myanmarTime;
+        }
+
+
+        function init() {
+            console.log("init function is running");
+
+            // Set default group to A
+            selectGroup('A');
+
+            // Update time immediately and then every second
+            updateMyanmarTime();
+            console.log("updateMyanmarTime function called");
+
+            setInterval(updateMyanmarTime, 1000);
+            console.log("updateMyanmarTime interval started");
+
+            setInterval(updateCurrentStatus, 1000);
+            console.log("updateCurrentStatus interval started");
+        }
+        // Select group function
+        function selectGroup(group) {
+            currentGroup = group;
+
+            // Update UI
+            groupButtons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.includes(group)) {
+                    btn.classList.add('active');
+                }
+            });
+
+            selectedGroupElement.textContent = `ရွေးချယ်ထားသောအုပ်စု: ${group}`;
+            statusIndicator.style.display = 'inline-block';
+
+            // Update displays
+            updateCurrentStatus();
+            generateWeeklySchedule();
+            updateTodaySchedule();
+        }
+
+        // Tab switching function
+        function openTab(event, tabName) {
+            // Remove active class from all tabs
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Add active class to clicked tab
+            event.currentTarget.classList.add('active');
+
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Update the current power status
+        function updateCurrentStatus() {
+            if (!currentGroup) return;
+
+            const now = getMyanmarTime();
+
+            // Get current group's schedule
+            const groupSchedule = groupSchedules[currentGroup];
+            let [startHour, startMinute] = groupSchedule.startTime.split(':').map(Number);
+            let [endHour, endMinute] = groupSchedule.endTime.split(':').map(Number);
+
+            // Adjust for next day if needed
+            let isNextDay = groupSchedule.nextDay || false;
+
+            // Create Date objects for comparison
+            const powerStart = new Date(now);
+            powerStart.setHours(startHour, startMinute, 0, 0);
+            if (isNextDay && now >= powerStart) {
+                powerStart.setDate(powerStart.getDate() + 1);
+            }
+
+            const powerEnd = new Date(powerStart);
+            if (endHour < startHour || (endHour === startHour && endMinute < startMinute)) {
+                powerEnd.setDate(powerEnd.getDate() + 1);
+            }
+            powerEnd.setHours(endHour, endMinute, 0, 0);
+
+            // Check if we're in a power session
+            if (now >= powerStart && now < powerEnd) {
+                // Power is ON
+                powerOn = true;
+                statusIndicator.className = 'status-indicator power-on';
+                statusIndicator.textContent = 'မီးလာနေပါသည်';
+                statusMessage.textContent = 'လျှပ်စစ်မီး ရရှိနေပါသည်';
+
+                // Show time remaining in current session
+                const timeRemaining = powerEnd - now;
+                updateTimerDisplay(timeRemaining);
+                countdownContainer.style.display = 'block';
+                nextSessionTime.innerHTML = `ယနေ့ ${formatTime(powerStart, true)}`;
+            } else {
+                // Power is OFF
+                powerOn = false;
+                statusIndicator.className = 'status-indicator power-off';
+                statusIndicator.textContent = 'မီးမလာသေးပါ';
+                statusMessage.textContent = 'လျှပ်စစ်မီး မရရှိသေးပါ';
+
+                // Calculate next power time
+                if (now < powerStart) {
+                    // Next session is today
+                    nextPowerTime = powerStart;
+                } else {
+                    // Find next session (6 groups rotating)
+                    nextPowerTime = findNextGroupSession(currentGroup, now);
+                }
+
+                // Show countdown to next session
+                const timeUntilNext = nextPowerTime - now;
+                updateTimerDisplay(timeUntilNext);
+                countdownContainer.style.display = 'block';
+
+                // Update next session display
+                const nextDay = now.getDate() === nextPowerTime.getDate() ? 'ယနေ့' :
+                    nextPowerTime.getDate() === now.getDate() + 1 ? 'မနက်ဖြန်' :
+                        formatBurmeseDate(nextPowerTime);
+                nextSessionTime.innerHTML = `${nextDay} ${formatTime(nextPowerTime, true)}`;
+            }
+        }
+
+        // Find next session for the group (considering 6 groups rotation)
+        function findNextGroupSession(currentGroup, now) {
+            const groupOrder = ['A', 'B', 'C', 'D', 'E', 'F'];
+            let currentIndex = groupOrder.indexOf(currentGroup);
+
+            // Calculate how many days to add based on group rotation
+            let daysToAdd = Math.floor(
+                (24 - now.getHours() +
+                    parseInt(groupSchedules[groupOrder[(currentIndex + 1) % 6]].startTime.split(':')[0]))
+                / 24
+            );
+            daysToAdd = Math.ceil(daysToAdd);
+
+            const nextTime = new Date(now);
+            nextTime.setDate(nextTime.getDate() + daysToAdd);
+
+            // Get the schedule for this group on that day
+            const groupSchedule = groupSchedules[currentGroup];
+            let [startHour, startMinute] = groupSchedule.startTime.split(':').map(Number);
+
+            nextTime.setHours(startHour, startMinute, 0, 0);
+
+            return nextTime;
+        }
+
+        // Update the timer display
+        function updateTimerDisplay(milliseconds) {
+            // Don't show negative time
+            if (milliseconds < 0) {
+                timerElement.textContent = "00:00:00";
+                return;
+            }
+
+            const totalSeconds = Math.floor(milliseconds / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            timerElement.textContent =
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Format time as HH:MM (Burmese)
+        function formatTime(date, withAMPM = false) {
+            // Ensure `date` is a valid Date object
+            if (!(date instanceof Date) || isNaN(date)) {
+                console.error("Invalid date passed to formatTime:", date);
+                return "Invalid Time";
+            }
+
+            let hours = date.getHours();
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+
+            if (withAMPM) {
+                const ampm = hours >= 12 ? 'နေ့လည်' : 'မနက်';
+                hours = hours % 12 || 12; // Convert 0 to 12 for AM/PM format
+                return `${hours}:${minutes} ${ampm}`;
+            } else {
+                return `${hours.toString().padStart(2, '0')}:${minutes}`;
+            }
+        }
+
+        // Format date as Burmese date
+        function formatBurmeseDate(date) {
+            const days = ['တနင်္ဂနွေ', 'တနင်္လာ', 'အင်္ဂါ', 'ဗုဒ္ဓဟူး', 'ကြာသပတေး', 'သောကြာ', 'စနေ'];
+            const months = ['ဇန်နဝါရီ', 'ဖေဖော်ဝါရီ', 'မတ်', 'ဧပြီ', 'မေ', 'ဇွန်', 'ဇူလိုင်', 'ဩဂုတ်', 'စက်တင်ဘာ', 'အောက်တိုဘာ', 'နိုဝင်ဘာ', 'ဒီဇင်ဘာ'];
+
+            const dayName = days[date.getDay()];
+            const day = date.getDate();
+            const month = months[date.getMonth()];
+            const year = date.getFullYear();
+
+            return `${dayName}၊ ${day} ${month} ${year}`;
+        }
+
+        // Update today's schedule display
+        function updateTodaySchedule() {
+            if (!currentGroup) return;
+
+            const groupSchedule = groupSchedules[currentGroup];
+            const [startHour, startMinute] = groupSchedule.startTime.split(':').map(Number);
+            const [endHour, endMinute] = groupSchedule.endTime.split(':').map(Number);
+
+            // Create date objects first
+            const startDate = new Date();
+            startDate.setHours(startHour, startMinute);
+
+            const endDate = new Date();
+            endDate.setHours(endHour, endMinute);
+
+            // Now pass the Date objects to formatTime
+            const startTime = formatTime(startDate, true);
+            const endTime = formatTime(endDate, true);
+
+            todayScheduleElement.innerHTML = `${startTime} မှ ${endTime} အထိ`;
+        }
+
+        // Generate the weekly schedule table
+        function generateWeeklySchedule() {
+            if (!currentGroup) return;
+
+            const groupOrder = ['A', 'B', 'C', 'D', 'E', 'F'];
+            const now = getMyanmarTime();
+
+            // Clear existing rows
+            scheduleBody.innerHTML = '';
+
+            // Generate 7 days of schedule
+            for (let i = 0; i < 7; i++) {
+                const row = document.createElement('tr');
+                const currentDate = new Date(now);
+                currentDate.setDate(currentDate.getDate() + i);
+
+                // Calculate which group is active today
+                // Groups rotate every 4 hours (6 groups × 4 hours = 24 hours)
+                const groupIndex = (Math.floor(now.getHours() / 4) + i) % 6;
+                const activeGroup = groupOrder[groupIndex];
+
+                // Get the schedule for this group
+                const groupSchedule = groupSchedules[activeGroup];
+                let [startHour, startMinute] = groupSchedule.startTime.split(':').map(Number);
+                let [endHour, endMinute] = groupSchedule.endTime.split(':').map(Number);
+
+                // Create Date objects for this session
+                const sessionStart = new Date(currentDate);
+                sessionStart.setHours(startHour, startMinute, 0, 0);
+
+                const sessionEnd = new Date(sessionStart);
+                if (endHour < startHour || (endHour === startHour && endMinute < startMinute)) {
+                    sessionEnd.setDate(sessionEnd.getDate() + 1);
+                }
+                sessionEnd.setHours(endHour, endMinute, 0, 0);
+
+                // Highlight current time slot
+                const isCurrentDay = i === 0;
+                const isCurrentTimeSlot = isCurrentDay &&
+                    now >= sessionStart &&
+                    now < sessionEnd;
+
+                if (isCurrentTimeSlot) {
+                    row.classList.add('current-time');
+                }
+
+                // Date cell
+                const dateCell = document.createElement('td');
+                if (i === 0) {
+                    dateCell.textContent = 'ယနေ့';
+                } else if (i === 1) {
+                    dateCell.textContent = 'မနက်ဖြန်';
+                } else {
+                    dateCell.textContent = formatBurmeseDate(currentDate);
+                }
+                row.appendChild(dateCell);
+
+                // Time slot cell
+                const timeCell = document.createElement('td');
+                const startTime = formatTime(sessionStart, true);
+                const endTime = formatTime(sessionEnd, true);
+                timeCell.innerHTML = `${startTime} မှ<br>${endTime} အထိ`;
+                row.appendChild(timeCell);
+
+                // Status cell
+                const statusCell = document.createElement('td');
+                if (isCurrentTimeSlot) {
+                    statusCell.textContent = 'လက်ရှိ';
+                } else if (isCurrentDay && now < sessionStart) {
+                    statusCell.textContent = 'နောက်ပိုင်း';
+                } else if (isCurrentDay) {
+                    statusCell.textContent = 'ကုန်ဆုံး';
+                } else {
+                    statusCell.textContent = '';
+                }
+                row.appendChild(statusCell);
+
+                scheduleBody.appendChild(row);
+            }
+        }
+
+        // Initialize the app when the page loads
+        window.onload = init;
+    </script>
+</body>
+
+</html>
