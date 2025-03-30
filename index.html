@@ -279,12 +279,12 @@
                 <div id="status-message"></div>
 
                 <div id="countdown-container" style="display: none;">
-                    <div class="info-text">နောက်လာမည့် မီးလာချိန်အထိ ကြာမြင့်ချိန်</div>
+                    
                     <div id="timer" class="timer">00:00:00</div>
                 </div>
 
                 <div id="next-session" class="next-session">
-                    နောက်လာမည့်အချိန်: <span id="next-session-time">အုပ်စုရွေးချယ်ပါ</span>
+                    မီးလာရမည့်အချိန်: <span id="next-session-time">အုပ်စုရွေးချယ်ပါ</span>
                 </div>
             </div>
 
@@ -384,6 +384,7 @@
         // DOM Elements
         const statusIndicator = document.getElementById('status-indicator');
         const statusMessage = document.getElementById('status-message');
+        const countdownMessage = document.getElementById('countdown');
         const timerElement = document.getElementById('timer');
         const nextSessionTime = document.getElementById('next-session-time');
         const todayScheduleElement = document.getElementById('today-schedule');
@@ -497,7 +498,9 @@
                 powerOn = true;
                 statusIndicator.className = 'status-indicator power-on';
                 statusIndicator.textContent = 'မီးလာနေပါသည်';
-                statusMessage.textContent = 'လျှပ်စစ်မီး ရရှိနေပါသည်';
+                statusMessage.textContent = 'မီးပျက်ရန်လိုတော့သည့်အချိန်';
+                // countdownMessage.textContent = '';
+
 
                 // Show time remaining in current session
                 const timeRemaining = powerEnd - now;
@@ -509,7 +512,8 @@
                 powerOn = false;
                 statusIndicator.className = 'status-indicator power-off';
                 statusIndicator.textContent = 'မီးမလာသေးပါ';
-                statusMessage.textContent = 'လျှပ်စစ်မီး မရရှိသေးပါ';
+                statusMessage.textContent = 'နောက်လာမည့် မီးလာချိန်အထိ ကြာမြင့်ချိန်';
+                // countdownMessage.textContent = 'နောက်လာမည့်မီးလာချိန်အထိ ကြာမြင့်ချိန်';
 
                 // Calculate next power time
                 if (now < powerStart) {
@@ -587,7 +591,7 @@
             const minutes = date.getMinutes().toString().padStart(2, '0');
 
             if (withAMPM) {
-                const ampm = hours >= 12 ? 'နေ့လည်' : 'မနက်';
+                const ampm = hours >= 12 ? 'PM' : 'AM';
                 hours = hours % 12 || 12; // Convert 0 to 12 for AM/PM format
                 return `${hours}:${minutes} ${ampm}`;
             } else {
